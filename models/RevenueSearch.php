@@ -8,7 +8,7 @@ use yii\data\ActiveDataProvider;
 use app\models\Revenue;
 
 /**
- * ReceiptSearch represents the model behind the search form about `app\models\Revenue`.
+ * RevenueSearch represents the model behind the search form about `app\models\Revenue`.
  */
 class RevenueSearch extends Revenue
 {
@@ -18,9 +18,8 @@ class RevenueSearch extends Revenue
     public function rules()
     {
         return [
-            [['id', 'account_id', 'student_id', 'user_id'], 'integer'],
-            [['date', 'remarks'], 'safe'],
-            [['amount'], 'number'],
+            [['id', 'student_id', 'user_id'], 'integer'],
+            [['date', 'payor', 'remarks'], 'safe'],
         ];
     }
 
@@ -62,13 +61,12 @@ class RevenueSearch extends Revenue
         $query->andFilterWhere([
             'id' => $this->id,
             'date' => $this->date,
-            'account_id' => $this->account_id,
             'student_id' => $this->student_id,
-            'amount' => $this->amount,
             'user_id' => $this->user_id,
         ]);
 
-        $query->andFilterWhere(['like', 'remarks', $this->remarks]);
+        $query->andFilterWhere(['like', 'payor', $this->payor])
+            ->andFilterWhere(['like', 'remarks', $this->remarks]);
 
         return $dataProvider;
     }

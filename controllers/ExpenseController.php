@@ -8,12 +8,13 @@ use app\models\ExpenseSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use app\models\Account;
-use yii\helpers\ArrayHelper;
 use yii\filters\AccessControl;
+use yii\helpers\ArrayHelper;
+use app\models\Account;
+use app\models\ExpenseItem;
 
 /**
- * DisbursementController implements the CRUD actions for Disbursement model.
+ * ExpenseController implements the CRUD actions for Expense model.
  */
 class ExpenseController extends Controller
 {
@@ -24,14 +25,14 @@ class ExpenseController extends Controller
     {
         return [
             'access' => [
-                'class'=>AccessControl::className(),
-                'only'=>['index','create','update','view','delete'],
+                'class' => AccessControl::className(),
+                'only' => ['index','view','create','update','delete'],
                 'rules' => [
                     [
-                        'actions' => ['index','create','update','view'],
+                        'actions' => ['index','view','create','update'],
                         'allow' => true,
                         'roles' => ['@']
-                    ]
+                    ],
                 ],
             ],
             'verbs' => [
@@ -44,7 +45,7 @@ class ExpenseController extends Controller
     }
 
     /**
-     * Lists all Disbursement models.
+     * Lists all Expense models.
      * @return mixed
      */
     public function actionIndex()
@@ -59,42 +60,58 @@ class ExpenseController extends Controller
     }
 
     /**
-     * Displays a single Disbursement model.
+     * Displays a single Expense model.
      * @param integer $id
      * @return mixed
      */
     public function actionView($id)
     {
+        $expenseItem = new ExpenseItem();
+        $expenseItem->expense_id = $id;
+        $accountsList = ArrayHelper::map(Account::find()->orderBy('title')->all(),'id','title');
+
+        if ($expenseItem->load(Yii::$app->request->post()) && $expenseItem->save()) {
+            $expenseItem = new ExpenseItem(); 
+        }
+
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'expenseItem' => $expenseItem,
+            'accountsList' => $accountsList,
         ]);
     }
 
     /**
-     * Creates a new Disbursement model.
+     * Creates a new Expense model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
         $model = new Expense();
-        $model->date = date('Y-m-d');
         $model->user_id = Yii::$app->user->identity->id;
+        $model->date = date('Y-m-d');
 
-        $accountsList = ArrayHelper::map(Account::find()->orderBy('title')->all(),'id','title');
+        $expenseItem = new \app\models\ExpenseItem();
+        $accountsList = ArrayHelper::map(\app\models\Account::find()->orderBy('title')->all(), 'id','title');
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $expenseItem->load(Yii::$app->request->post());
+            $expenseItem->expense_id = $model->id;
+            $expenseItem->save();
+
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
                 'model' => $model,
+                'expenseItem' => $expenseItem,
                 'accountsList' => $accountsList,
             ]);
         }
     }
 
     /**
-     * Updates an existing Disbursement model.
+     * Updates an existing Expense model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -103,20 +120,17 @@ class ExpenseController extends Controller
     {
         $model = $this->findModel($id);
 
-        $accountsList = ArrayHelper::map(Account::find()->orderBy('title')->all(),'id','title');
-
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
-                'accountsList' => $accountsList,
             ]);
         }
     }
 
     /**
-     * Deletes an existing Disbursement model.
+     * Deletes an existing Expense model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -129,10 +143,10 @@ class ExpenseController extends Controller
     }
 
     /**
-     * Finds the Disbursement model based on its primary key value.
+     * Finds the Expense model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Disbursement the loaded model
+     * @return Expense the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)

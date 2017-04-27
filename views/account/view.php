@@ -10,7 +10,7 @@ $this->title = $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Accounts', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="account-view">
+<div class="row col-md-5">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -23,6 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'method' => 'post',
             ],
         ]) ?>
+        <?= Html::a('Record New', ['create'], ['class' => 'btn btn-success pull-right']) ?>
     </p>
 
     <?= DetailView::widget([

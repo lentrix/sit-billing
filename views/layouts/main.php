@@ -37,11 +37,11 @@ AppAsset::register($this);
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
             ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'Accounts', 'url' => ['/account']],
-            ['label' => 'Students', 'url' => ['/student']],
-            ['label' => 'Revenues', 'url' => ['/revenue']],
-            ['label' => 'Expenses', 'url' => ['/expense']],
-            ['label' => 'Reports', 'url' => ['/report']],
+            ['label' => 'Accounts', 'url' => ['/account/index']],
+            ['label' => 'Students', 'url' => ['/student/index']],
+            ['label' => 'Revenues', 'url' => ['/revenue/index']],
+            ['label' => 'Expenses', 'url' => ['/expense/index']],
+            ['label' => 'Reports', 'url' => ['/report/index']],
             ['label' => 'About', 'url' => ['/site/about']],
             ['label' => 'Contact', 'url' => ['/site/contact']],
             Yii::$app->user->isGuest ? (
@@ -71,7 +71,7 @@ AppAsset::register($this);
 
 <footer class="footer">
     <div class="container">
-        <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
+        <p class="pull-left">&copy; Salus Institute of Technology, Tubigon, Bohol, Philippines. <?= date('Y') ?></p>
 
         <p class="pull-right"><?= Yii::powered() ?></p>
     </div>

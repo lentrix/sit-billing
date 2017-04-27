@@ -9,15 +9,14 @@ use Yii;
  *
  * @property integer $id
  * @property string $date
- * @property integer $account_id
  * @property integer $student_id
- * @property string $amount
+ * @property string $payor
  * @property string $remarks
  * @property integer $user_id
  *
  * @property Student $student
  * @property User $user
- * @property Account $account
+ * @property RevenueItem[] $revenueItems
  */
 class Revenue extends \yii\db\ActiveRecord
 {
@@ -35,14 +34,13 @@ class Revenue extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['date', 'user_id'], 'required'],
             [['date'], 'safe'],
-            [['account_id', 'amount', 'user_id'], 'required'],
-            [['account_id', 'student_id', 'user_id'], 'integer'],
-            [['amount'], 'number'],
+            [['student_id', 'user_id'], 'integer'],
+            [['payor'], 'string', 'max' => 255],
             [['remarks'], 'string', 'max' => 60],
             [['student_id'], 'exist', 'skipOnError' => true, 'targetClass' => Student::className(), 'targetAttribute' => ['student_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
-            [['account_id'], 'exist', 'skipOnError' => true, 'targetClass' => Account::className(), 'targetAttribute' => ['account_id' => 'id']],
         ];
     }
 
@@ -54,11 +52,10 @@ class Revenue extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'date' => 'Date',
-            'account_id' => 'Account',
-            'student_id' => 'Student',
-            'amount' => 'Amount',
+            'student_id' => 'Student ID',
+            'payor' => 'Payor',
             'remarks' => 'Remarks',
-            'user_id' => 'User',
+            'user_id' => 'User ID',
         ];
     }
 
@@ -81,8 +78,16 @@ class Revenue extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getAccount()
+    public function getRevenueItems()
     {
-        return $this->hasOne(Account::className(), ['id' => 'account_id']);
+        return $this->hasMany(RevenueItem::className(), ['revenue_id' => 'id']);
+    }
+
+    public function getTotal() {
+        $total = 0;
+        foreach($this->revenueItems as $rItem) {
+            $total += $rItem->amount;
+        }
+        return $total;
     }
 }

@@ -9,12 +9,9 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
-use app\models\Account;
-use app\models\Student;
-use yii\filters\AccessControl;
 
 /**
- * ReceiptController implements the CRUD actions for Receipt model.
+ * RevenueController implements the CRUD actions for Revenue model.
  */
 class RevenueController extends Controller
 {
@@ -24,17 +21,6 @@ class RevenueController extends Controller
     public function behaviors()
     {
         return [
-            'access' => [
-                'class'=>AccessControl::className(),
-                'only'=>['index','create','update','view','delete'],
-                'rules' => [
-                    [
-                        'actions' => ['index','create','update','view'],
-                        'allow' => true,
-                        'roles' => ['@']
-                    ]
-                ],
-            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -45,7 +31,7 @@ class RevenueController extends Controller
     }
 
     /**
-     * Lists all Receipt models.
+     * Lists all Revenue models.
      * @return mixed
      */
     public function actionIndex()
@@ -60,37 +46,51 @@ class RevenueController extends Controller
     }
 
     /**
-     * Displays a single Receipt model.
+     * Displays a single Revenue model.
      * @param integer $id
      * @return mixed
      */
     public function actionView($id)
     {
+        $revenueItem = new \app\models\RevenueItem();
+        $revenueItem->revenue_id=$id;
+
+        $accountsList = ArrayHelper::map(\app\models\Account::find()->orderBy('title')->all(), 'id','title');
+
+        if($revenueItem->load(Yii::$app->request->post()) && $revenueItem->save()) {
+            $revenueItem = new \app\models\RevenueItem();
+        }
+
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'revenueItem' => $revenueItem,
+            'accountsList' => $accountsList,
         ]);
     }
 
     /**
-     * Creates a new Receipt model.
+     * Creates a new Revenue model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
         $model = new Revenue();
-        $model->date = date("Y-m-d");
         $model->user_id = Yii::$app->user->identity->id;
+        $model->date = date('Y-m-d');
 
-        $accountsList = ArrayHelper::map(Account::find()->all(),'id','title');
-        $studentsList = ArrayHelper::map(
-            Student::find()->orderBy('lname, fname, mname')->all(),'id','formalName');
-
+        $revenueItem = new \app\models\RevenueItem();
+        $accountsList = ArrayHelper::map(\app\models\Account::find()->orderBy('title')->all(), 'id', 'title');
+        $studentsList = ArrayHelper::map(\app\models\Student::find()->orderBy('lname, fname')->all(), 'id', 'formalName');
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $revenueItem->load(Yii::$app->request->post());
+            $revenueItem->revenue_id = $model->id;
+            $revenueItem->save();
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
                 'model' => $model,
+                'revenueItem' => $revenueItem,
                 'accountsList' => $accountsList,
                 'studentsList' => $studentsList,
             ]);
@@ -98,7 +98,7 @@ class RevenueController extends Controller
     }
 
     /**
-     * Updates an existing Receipt model.
+     * Updates an existing Revenue model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -107,23 +107,17 @@ class RevenueController extends Controller
     {
         $model = $this->findModel($id);
 
-        $accountsList = ArrayHelper::map(Account::find()->all(),'id','title');
-        $studentsList = ArrayHelper::map(
-            Student::find()->orderBy('lname, fname, mname')->all(),'id','formalName');
-
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
-                'accountsList' => $accountsList,
-                'studentsList' => $studentsList,
             ]);
         }
     }
 
     /**
-     * Deletes an existing Receipt model.
+     * Deletes an existing Revenue model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -136,10 +130,10 @@ class RevenueController extends Controller
     }
 
     /**
-     * Finds the Receipt model based on its primary key value.
+     * Finds the Revenue model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Receipt the loaded model
+     * @return Revenue the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)

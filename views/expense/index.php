@@ -4,19 +4,19 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\DisbursementSearch */
+/* @var $searchModel app\models\ExpenseSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = 'Expenses';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="disbursement-index">
+<div class="expense-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Record Expense', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Expense', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -26,10 +26,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'date',
-            'account_id',
-            'amount',
-            'user_id',
-            // 'remarks',
+            'payee',
+            'remarks',
+            ['label'=>'TOTAL', 'value'=>'total','options'=>['style'=>'text-align: right']],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

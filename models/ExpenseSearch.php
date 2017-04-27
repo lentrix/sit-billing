@@ -5,10 +5,10 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Disbursement;
+use app\models\Expense;
 
 /**
- * DisbursementSearch represents the model behind the search form about `app\models\Disbursement`.
+ * ExpenseSearch represents the model behind the search form about `app\models\Expense`.
  */
 class ExpenseSearch extends Expense
 {
@@ -18,9 +18,8 @@ class ExpenseSearch extends Expense
     public function rules()
     {
         return [
-            [['id', 'account_id', 'user_id'], 'integer'],
-            [['date', 'remarks'], 'safe'],
-            [['amount'], 'number'],
+            [['id', 'user_id'], 'integer'],
+            [['date', 'payee', 'remarks'], 'safe'],
         ];
     }
 
@@ -62,12 +61,11 @@ class ExpenseSearch extends Expense
         $query->andFilterWhere([
             'id' => $this->id,
             'date' => $this->date,
-            'account_id' => $this->account_id,
-            'amount' => $this->amount,
             'user_id' => $this->user_id,
         ]);
 
-        $query->andFilterWhere(['like', 'remarks', $this->remarks]);
+        $query->andFilterWhere(['like', 'payee', $this->payee])
+            ->andFilterWhere(['like', 'remarks', $this->remarks]);
 
         return $dataProvider;
     }
